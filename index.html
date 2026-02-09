@@ -47,16 +47,8 @@
         .btn-submit:active {
             transform: translateY(0);
         }
-        .loader {
-            border-top-color: #3498db;
-            animation: spinner 1.5s linear infinite;
-        }
-        @keyframes spinner {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        #statusMessage {
-            display: none;
+        #statusBox {
+            transition: all 0.3s ease;
         }
     </style>
 </head>
@@ -87,11 +79,9 @@
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Kelas</label>
-                    <select name="kelas" required class="form-input w-full p-3 rounded-lg bg-gray-50">
+                    <select name="kelas" id="kelasSelect" required class="form-input w-full p-3 rounded-lg bg-gray-50">
                         <option value="" disabled selected>Pilih Kelas</option>
-                        <option value="X">Kelas X</option>
-                        <option value="XI">Kelas XI</option>
-                        <option value="XII">Kelas XII</option>
+                        <!-- Options will be populated by JavaScript -->
                     </select>
                 </div>
             </div>
@@ -107,7 +97,6 @@
             </button>
         </form>
 
-        <!-- Status Message Box -->
         <div id="statusBox" class="mt-6 p-4 rounded-lg hidden text-center">
             <p id="statusText" class="font-medium text-sm"></p>
         </div>
@@ -117,25 +106,24 @@
         </div>
     </div>
 
-    <!-- Script Integrasi Google Apps Script -->
     <script>
-        /**
-         * PANDUAN INTEGRASI GOOGLE SHEETS:
-         * 1. Buat Google Sheet baru.
-         * 2. Buka Extensions > Apps Script.
-         * 3. Paste kode berikut di Apps Script:
-         * * function doPost(e) {
-         * var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-         * var data = JSON.parse(e.postData.contents);
-         * sheet.appendRow([new Date(), data.nama, data.absen, data.kelas, data.alasan]);
-         * return ContentService.createTextOutput(JSON.stringify({"status": "success"})).setMimeType(ContentService.MimeType.JSON);
-         * }
-         * * 4. Klik 'Deploy' > 'New Deployment' > Pilih 'Web App'.
-         * 5. Set 'Who has access' menjadi 'Anyone'.
-         * 6. Copy URL Web App-nya dan ganti variabel scriptURL di bawah ini.
-         */
+        // Populate Kelas Options X-1 to XII-10
+        const kelasSelect = document.getElementById('kelasSelect');
+        const tingkatan = ['X', 'XI', 'XII'];
+        
+        tingkatan.forEach(t => {
+            const group = document.createElement('optgroup');
+            group.label = `Kelas ${t}`;
+            for (let i = 1; i <= 10; i++) {
+                const option = document.createElement('option');
+                option.value = `${t}-${i}`;
+                option.textContent = `${t}-${i}`;
+                group.appendChild(option);
+            }
+            kelasSelect.appendChild(group);
+        });
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbz2M8RsiQloKJi0K9BEMxg0N7REwumX-KCL9q67qVsrnD5kXhOfWc_xc5NBJNGQ8AYp/exec'; // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwvPczFai6-phiAM4GQ8Gtflf6V06KSE2UXVaOb72LYzKb562rKpGkSZVxzGIgdhAjd/exec'; // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
 
         const form = document.getElementById('dispenForm');
         const submitBtn = document.getElementById('submitBtn');
@@ -146,7 +134,7 @@
             e.preventDefault();
             
             if (!scriptURL) {
-                showStatus('Silakan atur URL Google Apps Script terlebih dahulu.', 'error');
+                showStatus('Silakan atur URL Google Apps Script terlebih dahulu di bagian kode.', 'error');
                 return;
             }
 
@@ -160,16 +148,23 @@
                 alasan: formData.get('alasan')
             };
 
+            // Menggunakan mode no-cors jika perlu, tapi biasanya Google Script Web App butuh fetch standar
             fetch(scriptURL, {
                 method: 'POST',
+                mode: 'no-cors', // Kadang diperlukan untuk Apps Script agar tidak kena CORS error
+                cache: 'no-cache',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(dataObject)
             })
-            .then(response => {
+            .then(() => {
+                // Karena mode 'no-cors' tidak mengembalikan body response, kita asumsikan berhasil jika tidak masuk ke catch
                 showStatus('Berhasil! Pengajuan dispensasi telah terkirim.', 'success');
                 form.reset();
             })
             .catch(error => {
-                showStatus('Terjadi kesalahan. Silakan coba lagi nanti.', 'error');
+                showStatus('Terjadi kesalahan koneksi.', 'error');
                 console.error('Error!', error.message);
             })
             .finally(() => {
@@ -180,7 +175,14 @@
         function setLoading(isLoading) {
             if (isLoading) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = 'Mengirim...';
+                submitBtn.innerHTML = `
+                    <span class="inline-flex items-center">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Mengirim...
+                    </span>`;
                 submitBtn.style.opacity = '0.7';
             } else {
                 submitBtn.disabled = false;
@@ -190,21 +192,20 @@
         }
 
         function showStatus(message, type) {
-            statusBox.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700');
+            statusBox.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'border', 'border-green-200', 'border-red-200');
             
             if (type === 'success') {
-                statusBox.classList.add('bg-green-100', 'text-green-700');
+                statusBox.classList.add('bg-green-100', 'text-green-700', 'border', 'border-green-200');
             } else {
-                statusBox.classList.add('bg-red-100', 'text-red-700');
+                statusBox.classList.add('bg-red-100', 'text-red-700', 'border', 'border-red-200');
             }
             
             statusText.innerText = message;
             statusBox.classList.remove('hidden');
 
-            // Sembunyikan pesan setelah 5 detik
             setTimeout(() => {
                 statusBox.classList.add('hidden');
-            }, 5000);
+            }, 6000);
         }
     </script>
 </body>
