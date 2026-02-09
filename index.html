@@ -1,210 +1,211 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Dispensasi Siswa - SMAN 1 Magetan</title>
+    <title>Dispensasi Siswa - SMAN 1 MAGETAN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
-
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 500px;
             overflow: hidden;
             transition: transform 0.3s ease;
         }
-
         .form-input {
-            width: 100%;
-            padding: 12px 16px;
+            transition: all 0.3s ease;
             border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            outline: none;
         }
-
         .form-input:focus {
-            border-color: #7c3aed;
-            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+            border-color: #3b82f6;
+            ring: 0;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         }
-
         .btn-submit {
-            background: linear-gradient(90deg, #2563eb, #7c3aed);
-            color: white;
-            font-weight: 600;
-            padding: 14px;
-            border-radius: 12px;
-            width: 100%;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
+            background: linear-gradient(90deg, #3b82f6 0%, #a855f7 100%);
+            transition: opacity 0.3s ease, transform 0.2s ease;
         }
-
         .btn-submit:hover {
+            opacity: 0.9;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
-            filter: brightness(1.1);
         }
-
-        .success-overlay {
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+        .loader {
+            border-top-color: #3498db;
+            animation: spinner 1.5s linear infinite;
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #statusMessage {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 50;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            text-align: center;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-slide {
-            animation: slideIn 0.5s ease forwards;
         }
     </style>
 </head>
 <body>
 
-    <div class="glass-card animate-slide">
-        <!-- Header Section -->
-        <div class="p-8 text-center bg-white border-b border-gray-100">
+    <div class="glass-card p-8">
+        <div class="text-center mb-8">
             <img src="https://smasa-magetan.sch.id/wp-content/uploads/2023/06/LOGO-SMA-NEGERI-1-MAGETAN-258x300.png" 
                  alt="Logo SMAN 1 Magetan" 
-                 class="w-24 mx-auto mb-4 drop-shadow-md"
-                 onerror="this.src='https://via.placeholder.com/150?text=SMASA'">
+                 class="w-24 h-auto mx-auto mb-4 drop-shadow-md"
+                 onerror="this.src='https://via.placeholder.com/100?text=SMASA'">
             <h1 class="text-2xl font-bold text-gray-800">SMAN 1 MAGETAN</h1>
-            <p class="text-gray-500 text-sm font-medium tracking-wide uppercase">Sistem Dispensasi Siswa Digital</p>
+            <p class="text-gray-500 text-sm">Sistem Pengajuan Dispensasi Siswa</p>
         </div>
 
-        <!-- Form Section -->
-        <form id="dispenForm" class="p-8 space-y-5">
+        <form id="dispenForm" class="space-y-5">
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap</label>
-                <input type="text" id="nama" required placeholder="Masukkan nama sesuai absen" class="form-input">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Lengkap</label>
+                <input type="text" name="nama" required placeholder="Masukkan nama sesuai absen"
+                       class="form-input w-full p-3 rounded-lg bg-gray-50">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">No. Absen</label>
+                    <input type="number" name="absen" required placeholder="Contoh: 15"
+                           class="form-input w-full p-3 rounded-lg bg-gray-50">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Kelas</label>
+                    <select name="kelas" required class="form-input w-full p-3 rounded-lg bg-gray-50">
+                        <option value="" disabled selected>Pilih Kelas</option>
+                        <option value="X">Kelas X</option>
+                        <option value="XI">Kelas XI</option>
+                        <option value="XII">Kelas XII</option>
+                    </select>
+                </div>
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Nomor Absen</label>
-                <input type="number" id="absen" required min="1" max="50" placeholder="Contoh: 15" class="form-input">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Alasan Dispensasi</label>
+                <textarea name="alasan" required rows="4" placeholder="Tuliskan alasan detail (Contoh: Lomba basket di GOR)"
+                          class="form-input w-full p-3 rounded-lg bg-gray-50"></textarea>
             </div>
 
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Kelas</label>
-                <select id="kelas" required class="form-input bg-white">
-                    <option value="" disabled selected>Pilih Kelas</option>
-                    <optgroup label="Kelas X">
-                        <option>X - 1</option><option>X - 2</option><option>X - 3</option><option>X - 4</option>
-                        <option>X - 5</option><option>X - 6</option><option>X - 7</option><option>X - 8</option>
-                    </optgroup>
-                    <optgroup label="Kelas XI">
-                        <option>XI - 1</option><option>XI - 2</option><option>XI - 3</option><option>XI - 4</option>
-                        <option>XI - 5</option><option>XI - 6</option><option>XI - 7</option><option>XI - 8</option>
-                    </optgroup>
-                    <optgroup label="Kelas XII">
-                        <option>XII - 1</option><option>XII - 2</option><option>XII - 3</option><option>XII - 4</option>
-                        <option>XII - 5</option><option>XII - 6</option><option>XII - 7</option><option>XII - 8</option>
-                        <option>XII - 9</option><option>XII - 10</option>
-                    </optgroup>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Alasan Dispensasi</label>
-                <textarea id="alasan" required rows="3" placeholder="Tuliskan alasan secara singkat dan jelas..." class="form-input resize-none"></textarea>
-            </div>
-
-            <button type="submit" class="btn-submit mt-2">
-                Ajukan Dispensasi
+            <button type="submit" id="submitBtn" class="btn-submit w-full text-white font-bold py-3 rounded-lg shadow-lg">
+                Kirim Pengajuan
             </button>
         </form>
 
-        <div class="px-8 pb-8 text-center">
-            <p class="text-xs text-gray-400 italic">Data akan terkirim secara otomatis ke sistem kesiswaan.</p>
+        <!-- Status Message Box -->
+        <div id="statusBox" class="mt-6 p-4 rounded-lg hidden text-center">
+            <p id="statusText" class="font-medium text-sm"></p>
+        </div>
+
+        <div class="mt-8 text-center text-xs text-gray-400">
+            &copy; 2024 SMAN 1 MAGETAN - Digital Presence System
         </div>
     </div>
 
-    <!-- Success Modal -->
-    <div id="successModal" class="success-overlay">
-        <div class="bg-white p-8 rounded-3xl text-gray-800 max-w-xs mx-4 transform transition-all shadow-2xl">
-            <div class="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-8 h-8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-            </div>
-            <h2 class="text-xl font-bold mb-2">Berhasil Dikirim!</h2>
-            <p class="text-sm text-gray-500 mb-6">Permohonan dispensasi Anda sedang diproses oleh Kesiswaan.</p>
-            <button onclick="closeModal()" class="w-full py-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors">Tutup</button>
-        </div>
-    </div>
-
+    <!-- Script Integrasi Google Apps Script -->
     <script>
-const form = document.getElementById('dispenForm');
-const modal = document.getElementById('successModal');
+        /**
+         * PANDUAN INTEGRASI GOOGLE SHEETS:
+         * 1. Buat Google Sheet baru.
+         * 2. Buka Extensions > Apps Script.
+         * 3. Paste kode berikut di Apps Script:
+         * * function doPost(e) {
+         * var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+         * var data = JSON.parse(e.postData.contents);
+         * sheet.appendRow([new Date(), data.nama, data.absen, data.kelas, data.alasan]);
+         * return ContentService.createTextOutput(JSON.stringify({"status": "success"})).setMimeType(ContentService.MimeType.JSON);
+         * }
+         * * 4. Klik 'Deploy' > 'New Deployment' > Pilih 'Web App'.
+         * 5. Set 'Who has access' menjadi 'Anyone'.
+         * 6. Copy URL Web App-nya dan ganti variabel scriptURL di bawah ini.
+         */
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx3Zcl80txmCCZh4dbMTRH2kwPrbYGl14Sxrg7oYyqbHI0UIHNnfmVa5Nil_98Alw59/exec";
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz2M8RsiQloKJi0K9BEMxg0N7REwumX-KCL9q67qVsrnD5kXhOfWc_xc5NBJNGQ8AYp/exec'; // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
 
-form.addEventListener('submit', function(e) {
-    e.preventDefault();
+        const form = document.getElementById('dispenForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusBox = document.getElementById('statusBox');
+        const statusText = document.getElementById('statusText');
 
-    const formData = {
-        nama: document.getElementById('nama').value,
-        absen: document.getElementById('absen').value,
-        kelas: document.getElementById('kelas').value,
-        alasan: document.getElementById('alasan').value
-    };
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            
+            if (!scriptURL) {
+                showStatus('Silakan atur URL Google Apps Script terlebih dahulu.', 'error');
+                return;
+            }
 
-    fetch(WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify(formData),
-        headers: {
-            "Content-Type": "application/json"
+            setLoading(true);
+
+            const formData = new FormData(form);
+            const dataObject = {
+                nama: formData.get('nama'),
+                absen: formData.get('absen'),
+                kelas: formData.get('kelas'),
+                alasan: formData.get('alasan')
+            };
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify(dataObject)
+            })
+            .then(response => {
+                showStatus('Berhasil! Pengajuan dispensasi telah terkirim.', 'success');
+                form.reset();
+            })
+            .catch(error => {
+                showStatus('Terjadi kesalahan. Silakan coba lagi nanti.', 'error');
+                console.error('Error!', error.message);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+        });
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Mengirim...';
+                submitBtn.style.opacity = '0.7';
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Kirim Pengajuan';
+                submitBtn.style.opacity = '1';
+            }
         }
-    })
-    .then(response => response.json())
-    .then(result => {
-        console.log(result);
 
-        if (result.status === "success") {
-            modal.style.display = "flex";
-            form.reset();
-        } else {
-            alert("Gagal menyimpan data");
+        function showStatus(message, type) {
+            statusBox.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700');
+            
+            if (type === 'success') {
+                statusBox.classList.add('bg-green-100', 'text-green-700');
+            } else {
+                statusBox.classList.add('bg-red-100', 'text-red-700');
+            }
+            
+            statusText.innerText = message;
+            statusBox.classList.remove('hidden');
+
+            // Sembunyikan pesan setelah 5 detik
+            setTimeout(() => {
+                statusBox.classList.add('hidden');
+            }, 5000);
         }
-    })
-    .catch(error => {
-        alert("Koneksi ke server gagal");
-        console.error(error);
-    });
-});
-
-function closeModal() {
-    modal.style.display = 'none';
-}
-</script>
-
+    </script>
 </body>
-
 </html>
-
