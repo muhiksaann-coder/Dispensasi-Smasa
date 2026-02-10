@@ -66,7 +66,7 @@
 
         <form id="dispenForm" class="space-y-5">
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Lengkap</label>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Lengkap Siswa</label>
                 <input type="text" name="nama" required placeholder="Masukkan nama sesuai absen"
                        class="form-input w-full p-3 rounded-lg bg-gray-50">
             </div>
@@ -81,9 +81,35 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Kelas</label>
                     <select name="kelas" id="kelasSelect" required class="form-input w-full p-3 rounded-lg bg-gray-50">
                         <option value="" disabled selected>Pilih Kelas</option>
-                        <!-- Options will be populated by JavaScript -->
                     </select>
                 </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Dari Jam Ke-</label>
+                    <select name="jam_mulai" required class="form-input w-full p-3 rounded-lg bg-gray-50">
+                        <option value="" disabled selected>Pilih Jam</option>
+                        <script>
+                            for(let i=1; i<=10; i++) document.write(`<option value="${i}">Jam ke-${i}</option>`);
+                        </script>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Sampai Jam Ke-</label>
+                    <select name="jam_selesai" required class="form-input w-full p-3 rounded-lg bg-gray-50">
+                        <option value="" disabled selected>Pilih Jam</option>
+                        <script>
+                            for(let i=1; i<=10; i++) document.write(`<option value="${i}">Jam ke-${i}</option>`);
+                        </script>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Guru Pemberi Izin</label>
+                <input type="text" name="guru" required placeholder="Masukkan nama guru pemberi izin"
+                       class="form-input w-full p-3 rounded-lg bg-gray-50">
             </div>
 
             <div>
@@ -107,7 +133,6 @@
     </div>
 
     <script>
-        // Populate Kelas Options X-1 to XII-10
         const kelasSelect = document.getElementById('kelasSelect');
         const tingkatan = ['X', 'XI', 'XII'];
         
@@ -123,7 +148,7 @@
             kelasSelect.appendChild(group);
         });
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbwvPczFai6-phiAM4GQ8Gtflf6V06KSE2UXVaOb72LYzKb562rKpGkSZVxzGIgdhAjd/exec'; // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyxAIVbpRlmrgB0Y6EyCT7FvTZq0tutV3eSjVr5daGm3JUfzv-d1gfHd8Zxeu9Z8hel/exec'; 
 
         const form = document.getElementById('dispenForm');
         const submitBtn = document.getElementById('submitBtn');
@@ -134,7 +159,7 @@
             e.preventDefault();
             
             if (!scriptURL) {
-                showStatus('Silakan atur URL Google Apps Script terlebih dahulu di bagian kode.', 'error');
+                showStatus('Silakan atur URL Google Apps Script terlebih dahulu di bagian kode scriptURL.', 'error');
                 return;
             }
 
@@ -145,13 +170,15 @@
                 nama: formData.get('nama'),
                 absen: formData.get('absen'),
                 kelas: formData.get('kelas'),
+                jam_mulai: formData.get('jam_mulai'),
+                jam_selesai: formData.get('jam_selesai'),
+                guru: formData.get('guru'),
                 alasan: formData.get('alasan')
             };
 
-            // Menggunakan mode no-cors jika perlu, tapi biasanya Google Script Web App butuh fetch standar
             fetch(scriptURL, {
                 method: 'POST',
-                mode: 'no-cors', // Kadang diperlukan untuk Apps Script agar tidak kena CORS error
+                mode: 'no-cors',
                 cache: 'no-cache',
                 headers: {
                     'Content-Type': 'application/json'
@@ -159,7 +186,6 @@
                 body: JSON.stringify(dataObject)
             })
             .then(() => {
-                // Karena mode 'no-cors' tidak mengembalikan body response, kita asumsikan berhasil jika tidak masuk ke catch
                 showStatus('Berhasil! Pengajuan dispensasi telah terkirim.', 'success');
                 form.reset();
             })
@@ -183,29 +209,22 @@
                         </svg>
                         Mengirim...
                     </span>`;
-                submitBtn.style.opacity = '0.7';
             } else {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Kirim Pengajuan';
-                submitBtn.style.opacity = '1';
             }
         }
 
         function showStatus(message, type) {
-            statusBox.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'border', 'border-green-200', 'border-red-200');
-            
+            statusBox.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700');
             if (type === 'success') {
-                statusBox.classList.add('bg-green-100', 'text-green-700', 'border', 'border-green-200');
+                statusBox.classList.add('bg-green-100', 'text-green-700');
             } else {
-                statusBox.classList.add('bg-red-100', 'text-red-700', 'border', 'border-red-200');
+                statusBox.classList.add('bg-red-100', 'text-red-700');
             }
-            
             statusText.innerText = message;
             statusBox.classList.remove('hidden');
-
-            setTimeout(() => {
-                statusBox.classList.add('hidden');
-            }, 6000);
+            setTimeout(() => statusBox.classList.add('hidden'), 6000);
         }
     </script>
 </body>
